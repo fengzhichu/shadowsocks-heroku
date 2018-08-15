@@ -100,7 +100,16 @@
     remotePort = null;
     ws.on("message", function(data, flags) {
       var addrtype, buf, e, error;
-      data = encryptor.decrypt(data);
+      try {
+        data = encryptor.decrypt(data);
+      } catch(error) {
+        e = error;
+        console.warn(e);
+        if (remote) {
+          remote.destroy();
+        }
+        return ws.close();
+      }
       if (stage === 5) {
         if (!remote.write(data)) {
           ws._socket.pause();
